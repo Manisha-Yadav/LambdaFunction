@@ -17,7 +17,9 @@ import com.amazonaws.services.lambda.runtime.events.SQSEvent.SQSMessage;
  *                                      a. message is successfully processed
  *                                      b. message retention period is reached and SQS deletes it
  *                                      c. SQS sends the message to Dead Letter queue (SQS DLQ)
- *  2. AWS CLI
+ *                 - Lambda Service polls SQS, once it gets a message from SQS, it calls the Lambda function SYNCHRONOUSLY
+ *                 - Therefore, no retries are done & failed messages are not sent to Lambda DLQ.
+ *  2. AWS CLI (ASYNCHRONOUS call)
  *     - Command - aws lambda invoke --function-name FirstLambda  --invocation-type Event --payload '' --region us-east-2 response.json
  *     - Success
  *     - Failure - To prevent loss of message, we need to configure 'Asynchronous invocation' under configuration in Lambda function
