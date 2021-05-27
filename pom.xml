@@ -28,6 +28,11 @@
             <artifactId>aws-java-sdk-lambda</artifactId>
             <version>1.11.648</version>
         </dependency>
+        <!-- <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sqs</artifactId>
+            <version>2.16.29</version>
+        </dependency> -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
