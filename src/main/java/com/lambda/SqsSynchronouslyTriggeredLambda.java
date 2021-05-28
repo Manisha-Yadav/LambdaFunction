@@ -11,14 +11,21 @@ import com.amazonaws.services.lambda.runtime.events.SQSEvent.SQSMessage;
  *  1. Configure Lambda function triggers under 'Lambda triggers' for the SQS queue that you want as trigger
  *  2. 'Add Trigger' on the Function overview page of your function
  *
- *  Invoking Lambda Asynchronously
+ *  IAM Policies :-
+ *      Make sure you have AWSLambdaSQSQueueExecutionRole added to the IAM Role associated to the
+ *      Lambda function
+ *      In case of stream AWSLambdaKinesisExecutionRole for Stream
+ *
+ *  Invoking Lambda EVENT SOURCE MAPPING
  *  1. SQS Trigger - Success - Lambda deletes the message from SQS queue
  *                 - Failure/Error -  Lambda service continues to process the failed message until
  *                                      a. message is successfully processed
  *                                      b. message retention period is reached and SQS deletes it
  *                                      c. SQS sends the message to Dead Letter queue (SQS DLQ)
  *                 - Lambda Service polls SQS, once it gets a message from SQS, it calls the Lambda function SYNCHRONOUSLY
- *                 - Therefore, no retries are done & failed messages are not sent to Lambda DLQ.
+ *                 - Therefore, error handling and retries are not managed by Lambda.
+ *                 - Error handling and retries for failure has to be managed by SQS in this case
+ *                 - Best Practice (https://zaccharles.medium.com/reproducing-the-sqs-trigger-and-lambda-concurrency-limit-issue-f4c09d384a18)
  *  2. AWS CLI (ASYNCHRONOUS call)
  *     - Command - aws lambda invoke --function-name FirstLambda  --invocation-type Event --payload '' --region us-east-2 response.json
  *     - Success
@@ -28,7 +35,7 @@ import com.amazonaws.services.lambda.runtime.events.SQSEvent.SQSMessage;
  *
  *  SQS DLQ & Lambda DLQ are different.
  */
-public class SqsTriggeredLambda implements RequestHandler<SQSEvent, String> {
+public class SqsSynchronouslyTriggeredLambda implements RequestHandler<SQSEvent, String> {
 
     @Override
     public String handleRequest(SQSEvent sqsEvent, Context context) {
