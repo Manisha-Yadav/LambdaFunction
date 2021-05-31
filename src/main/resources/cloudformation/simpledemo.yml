@@ -1,0 +1,53 @@
+Parameters:
+  S3CodeBucketName:
+    Description: s3 code bucket name
+    Type: String
+  S3CodeObjectName:
+    Description: s3 code object name
+    Type: String
+  S3ObjectVersion:
+    Description: s3 code object version
+    Type: String
+
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: executionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: logs:CreateLogGroup
+                Resource: arn:aws:logs:us-east-2:799968346123:*
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:us-east-2:799968346123:*:*:*
+
+  CloudFormedLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: "com.lambda.Demo::myMethod"
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref S3CodeBucketName
+        S3Key: !Ref S3CodeObjectName
+        S3ObjectVersion: !Ref S3ObjectVersion
+      Runtime: "java11"
+      Timeout: 10
+
+
+

@@ -48,6 +48,16 @@ import java.util.List;
  */
 public class S3EventAsynchronouslyTriggeredLambda implements RequestHandler<S3Event, String> {
 
+    public static final AmazonS3 S_3_CLIENT = createS3Client();
+
+    private static AmazonS3 createS3Client() {
+        // This will be created and stored in LAMBDA EXECUTION CONTEXT
+        // The below log would be printed only once even for consecutive multiple lambda invocations
+        // execution context gets refreshed only after some idle time.
+        System.out.println("Creating S3 client in lambda execution context");
+        return AmazonS3ClientBuilder.standard().withRegion(Regions.US_EAST_2).build();
+    }
+
     @Override
     public String handleRequest(S3Event s3Event, Context context) {
         StringBuilder result = new StringBuilder();
@@ -71,7 +81,7 @@ public class S3EventAsynchronouslyTriggeredLambda implements RequestHandler<S3Ev
             }else {
                 try {
                     String bucketName = record.getS3().getBucket().getName();
-                    AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion(Regions.US_EAST_2).build();
+                    AmazonS3 s3Client = S_3_CLIENT;
                     /*
                     In the following statements lambda would be reading from S3 (reverse of the S3 triggered lambda)
                     Therefore we would need to add below policy to lambda's role
